@@ -1,0 +1,10 @@
+ADDING SUPPORT FOR NEW PROPERTIES
+1. Update the controlPropertiesJSON file (add an entry in the 'propertydefs' section and then add the property type to the corresponding controls in the 'controlPropertyBindings' section) and optionally minify it
+2. Copy the minified controlPropertiesJSON into the index.html file in the JSON script section titled 'controlPropertiesJSON'
+3. If the property is a new datatype, add an entry/control to parse it in the 'createPropertyEditor' function in the propertyPanelSetupScripts function
+	-** make sure to add 'editor.className = "property-editor";' to the editing control to ensure the control update event handler fires and updates the control
+	-** for non-input controls (like file-selection buttons), make sure to manually trigger a 'change' or 'input' event using [reference to input control].dispatchEvent(new Event(**either 'change' or 'input' here**, { bubbles: true }));
+4. If the property is a new datatype that has more settings than normal (4 for most settings, 5 for enum types, etc) add an entry in the 'initializePropertiesPanel' function in the 'propertyPanelSetupScripts' file.
+5. If the property is a new datatype, go to the 'getPropertyEditorValue' function in the 'propertyPanelMgmtScripts' file and add an entry to retrieve the data from the editor element.
+6. Go to the function 'applyPropertyToControl()' in the 'ctrlPropertyUpdateScripts' javascript file and add an entry for the property in the big switch statement (switching on 'propertyName')
+7. Go to the function 'getControlPropertyValue' in the 'propertyPanelMgmtScripts' javascript file and add an entry for the property in the big switch statement (switching on 'propertyName')

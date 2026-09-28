@@ -1,0 +1,103 @@
+============================================================
+DELETING CONTROLS
+============================================================
+
+OVERVIEW
+--------
+Deletion is based on the currently selected control.
+
+The execution path is:
+
+    registerKeyboardEvents()
+            |
+            v
+    registerDeleteKeyEvent()
+            |
+            v
+    handleDeleteKey(event)
+            |
+            v
+    selectedControl.remove()
+            |
+            v
+    deselectControl()
+
+
+STEP 1 - REGISTER KEYBOARD EVENTS
+---------------------------------
+During application startup:
+
+    registerKeyboardEvents()
+
+is called.
+
+This function is responsible for registering the editor's
+keyboard-related event handlers.
+
+
+STEP 2 - REGISTER THE DELETE HANDLER
+------------------------------------
+registerKeyboardEvents() calls:
+
+    registerDeleteKeyEvent()
+
+This function registers a keydown listener on the document
+(or the appropriate editor-level element).
+
+The listener calls:
+
+    handleDeleteKey(event)
+
+
+STEP 3 - CHECK THE PRESSED KEY
+------------------------------
+handleDeleteKey() checks:
+
+    event.key
+
+The handler only proceeds when the key is:
+
+    "Delete"
+
+If another key was pressed, the function returns immediately.
+
+
+STEP 4 - CHECK WHETHER A CONTROL IS SELECTED
+--------------------------------------------
+The handler checks:
+
+    selectedControl
+
+If selectedControl is null, there is nothing to delete and
+the handler returns.
+
+
+STEP 5 - DELETE THE CONTROL
+---------------------------
+If a control is selected, the handler removes it from the DOM:
+
+    selectedControl.remove()
+
+This removes the selected control from its parent container.
+
+
+STEP 6 - CLEAR THE EDITOR SELECTION
+------------------------------------
+After removing the element, the selection state must also
+be cleared.
+
+The handler calls:
+
+    deselectControl()
+
+deselectControl() removes the selection highlighting,
+clears/hides the property controls, resets property editor
+values, and sets:
+
+    selectedControl = null
+    selectedControlType = null
+
+The container selection is normally left unchanged.
+
+This is important because deleting a control should not
+change where the next control will be created.

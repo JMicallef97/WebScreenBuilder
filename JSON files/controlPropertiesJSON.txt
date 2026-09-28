@@ -1,0 +1,111 @@
+{
+"propertydefs": [
+        [
+            "text", 
+	    "string", "The text displayed by the control.", ""
+        ],
+        [
+            "width", 
+	    "number", "The width of the control in pixels.", "100px"
+        ],
+        [
+            "height", 
+	    "number", "The height of the control in pixels.", "30px"
+        ],
+        [
+            "backgroundColor", 
+	    "color", "The background color of the control.", "#ffffff"
+        ],
+        [
+            "foregroundColor", 
+	    "color", "The foreground/text color of the control.", "#000000"
+        ],
+        [
+            "fontSize", 
+	    "number", "The font size in pixels.", "14px"
+        ],
+        [
+            "fontFamily", 
+	    "string", "The font family used by the control.", "Arial"
+        ],
+        [
+            "padding", 
+	    "number", "The amount of padding inside the control in pixels.", "5px"
+        ],
+        [
+            "margin", 
+	    "number", "The amount of margin around the control in pixels.", "0px"
+        ],
+        [
+            "display", 
+	    "string", "The CSS display mode of the control.", "block"
+        ],
+        [
+            "enabled", 
+	    "boolean", "Determines whether the control is enabled.", true
+        ],
+        [
+            "visible", 
+	    "boolean", "Determines whether the control is visible.", true
+        ],
+        [
+            "borderColor", 
+	    "color", "The color of the control border.", "#000000"
+        ],
+        [
+            "borderWidth", 
+	    "number", "The width of the control border in pixels.", "1px"
+        ],
+        [
+            "borderRadius", 
+	    "number", "The radius of the control corners in pixels.", "0px"
+        ],
+        [
+            "value", 
+	    "string", "The current value of the control.", ""
+        ],
+        [
+            "placeholder", 
+	    "string", "Placeholder text displayed when the control has no value.", ""
+        ]
+    ],
+
+    "commonProperties": [
+        "width", "height", "padding", "margin", "backgroundColor",
+        "foregroundColor", "visible", "enabled"
+    ],
+
+    "controlPropertyBindings": [
+        [
+            "button",
+            [
+                "text", "fontSize", "fontFamily", "borderColor", "borderWidth", "borderRadius"
+            ]
+        ],
+        [
+            "div",
+            [
+                "fontSize", "fontFamily", "borderColor", "borderWidth", "borderRadius", "display"
+            ]
+        ],
+        [
+            "label",
+            [
+                "text", "fontSize", "fontFamily"
+            ]
+        ],
+        [
+            "textbox",
+            [
+                "value", "placeholder", "fontSize", "fontFamily", "borderColor",
+                "borderWidth", "borderRadius"
+            ]
+        ],
+        [
+            "radiobutton",
+            [
+                "text", "fontSize", "fontFamily", "borderColor", "borderWidth", "borderRadius"
+            ]
+        ]
+    ]
+}

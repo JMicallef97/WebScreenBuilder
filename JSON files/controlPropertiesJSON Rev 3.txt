@@ -1,0 +1,185 @@
+{
+"propertydefs": [
+        [
+            "text", 
+	    "string", "The text displayed by the control.", "text"
+        ],
+	[
+	    "linkTarget",
+	    "string", "The target of a hyperlink (website it goes to).", ""
+	],
+	[
+	    "listItems",
+	    "listItems", "A collection of items in string form", ""
+	],
+        [
+            "width", 
+	    "number", "The width of the control in pixels.", "100px"
+        ],
+        [
+            "height", 
+	    "number", "The height of the control in pixels.", "30px"
+        ],
+        [
+            "backgroundColor", 
+	    "color", "The background color of the control.", "#ffffff"
+        ],
+        [
+            "foregroundColor", 
+	    "color", "The foreground/text color of the control.", "#000000"
+        ],
+        [
+            "fontSize", 
+	    "number", "The font size in pixels.", "14px"
+        ],
+        [
+            "fontFamily", 
+	    "string", "The font family used by the control.", "Arial"
+        ],
+        [
+            "padding", 
+	    "number", "The amount of padding inside the control in pixels.", "5px"
+        ],
+        [
+            "margin", 
+	    "number", "The amount of margin around the control in pixels.", "0px"
+        ],
+        [
+            "display", 
+	    "enum", "The CSS display mode of the control.", "flex",
+	    ["block", "inline flow-root", "none", "flex", "grid"]
+        ],
+        [
+            "borderColor", 
+	    "color", "The color of the control border.", "#000000"
+        ],
+        [
+            "borderWidth", 
+	    "number", "The width of the control border in pixels.", "1px"
+        ],
+        [
+            "borderRadius", 
+	    "number", "The radius of the control corners in pixels.", "0px"
+        ],
+	[
+	    "borderStyle",
+	    "enum", "Defines how the element's border is styled.", "solid", ["none", "hidden", "dotted", "dashed", "solid", "double", "groove", "ridge", "inset", "outset"]
+	],
+        [
+            "value", 
+	    "string", "The current value of the control.", ""
+        ],
+        [
+            "placeholder", 
+	    "string", "Placeholder text displayed when the control has no value.", ""
+        ],
+	[
+	    "flex-direction",
+	    "enum", "Sets the direction of items in a flex container", "row", 
+	    ["row", "row-reverse", "column", "column-reverse"]
+	],
+	[
+	    "justify-content",
+	    "enum", "Aligns items along the main axis in Flexbox", "center",
+	    ["center", "start", "end", "flex-start", "flex-end", "left", "right"]
+	],
+	[
+	    "align-items",
+	    "enum", "Aligns items along the cross axis in Flexbox", "center",
+	    ["normal", "stretch", "center", "start", "end", "flex-start", "flex-end", "self-start", "self-end", "anchor-center"]
+	],
+	[
+	    "gap",
+	    "number", "Adds consistent spacing between controls", "5px"
+	],
+	[
+	    "flex-wrap",
+	    "enum", "Allows controls to wrap onto multiple lines", "wrap", 
+	    ["nowrap", "wrap", "wrap-reverse", "balance", "wrap balance", "balance wrap-reverse"]
+	],
+	[
+	    "grid-template-columns",
+	    "string", "Defines columns when using CSS Grid", ""
+	],
+	[
+	    "grid-template-rows",
+	    "string", "Defines rows when using CSS Grid", ""
+	],
+	[
+	    "position",
+	    "enum", "Controls the way an element is positioned.", "static",
+	    ["static", "relative", "absolute", "fixed", "sticky"]
+	],
+	[
+	    "box-sizing",
+	    "enum", "Determines how total height/width of an element is calculated.", "content-box",
+	    ["content-box", "border-box"]
+	],
+	[
+	    "imgSrc",
+	    "filePicker_img", "Data of an image, stored in the webpage as base 64.", ""
+	],
+	[
+	    "text-align",
+	    "enum", "Determines how text is aligned", "start", ["start", "end", "left", "right", "center", "justify"]
+	],
+	[
+	    "borderCollapse",
+	    "enum", "Determines whether table cells share a border or remain separate", "collapse", ["collapse", "separate"]
+	],
+	[
+	    "verticalAlign",
+	    "enum", "Determines how content is vertically aligned inside its container", "baseline", ["baseline", "top", "middle", "bottom", "sub", "text-top"]
+	]
+    ]
+
+    "commonProperties": [
+        "backgroundColor", "foregroundColor"
+    ],
+
+    "controlPropertyBindings": 
+    [
+        [ "heading 1",  ["fontFamily", "text"] ],
+	[ "heading 2",  ["fontFamily", "text"] ],
+	[ "heading 3",  ["fontFamily", "text"] ],
+	[ "heading 4",  ["fontFamily", "text"] ],
+	[ "paragraph",  ["fontFamily", "text"] ],
+	[ "hyperlink",  ["fontFamily", "fontSize", "linkTarget", "text"] ],
+	[ "bullet point list",  ["fontSize", "fontFamily", "listItems"] ],
+	[ "numbered list",  ["fontSize", "fontFamily", "listItems"] ],
+	[ "label",  ["borderColor", "borderStyle", "borderRadius", "borderWidth", "fontSize", "fontFamily", "text-align"] ],
+
+	[
+	    "image", [
+		"borderColor", "borderStyle", "borderRadius", "borderWidth", "height", "imgSrc", "width"
+	    ]
+	],
+
+
+
+        [
+            "div", [
+                 "align-items", "borderColor", "borderStyle", "borderRadius",  "box-sizing", "borderWidth", "display", "flex-wrap", "flex-direction", "gap", "height", "grid-template-columns", "grid-template-rows", "justify-content", "margin", "padding", "position", "text-align", "width"
+            ]
+        ],
+	[
+	    "table", [
+		  "borderColor", "borderCollapse" "borderStyle", "borderRadius", "borderWidth", "height", "padding", "text-align", "verticalAlign", "width"
+            ]	
+	],
+
+
+
+
+        [
+            "button", [
+                "borderColor", "borderStyle", "borderRadius", "borderWidth", "fontSize", "fontFamily", "height", "text", "width"
+            ]
+        ],
+        [ 
+	    "textbox", [
+                "borderColor", "borderWidth", "borderRadius", "fontSize", "fontFamily", "height", "value", "width"
+            ]
+        ]
+    ]
+}

@@ -1,0 +1,194 @@
+============================================================
+OVERALL EDITOR EXECUTION FLOW
+============================================================
+
+APPLICATION STARTUP
+-------------------
+
+DOMContentLoaded
+    |
+    +--> initializePropertiesPanel()
+    |
+    +--> initializePropertyEditorHandlers()
+    |
+    +--> initializeControlCanvas()
+    |
+    +--> registerKeyboardEvents()
+    |
+    +--> initializeToolbar()
+
+
+CONTROL CREATION
+----------------
+
+User clicks toolbar control
+    |
+    v
+handleControlCreationButton(controlType)
+    |
+    v
+createControl(controlType)
+    |
+    +--> getSelectedContainer()
+    |
+    +--> getHTMLTagForControlType()
+    |
+    +--> getInputTypeForControlType()
+    |
+    +--> createElement()
+    |
+    +--> applyDefaultControlProperties()
+    |
+    +--> appendChild()
+    |
+    +--> selectControl()
+
+
+CONTROL SELECTION
+-----------------
+
+User clicks control
+    |
+    v
+handleCanvasPointerDown(event)
+    |
+    v
+closest(".created-control")
+    |
+    +--> isContainerControl()
+    |       |
+    |       +--> true
+    |             |
+    |             v
+    |       selectContainer()
+    |             |
+    |             v
+    |       selectedContainer = container
+    |
+    v
+selectControl()
+    |
+    +--> selectedControl = control
+    |
+    +--> highlight control
+    |
+    +--> loadElementIdentityValues()
+    |
+    +--> updateVisibleProperties()
+    |
+    +--> loadControlPropertyValues()
+
+
+PROPERTY LOADING
+---------------
+
+loadControlPropertyValues(control)
+    |
+    v
+getControlPropertyValue()
+    |
+    v
+property editor
+    |
+    +--> text/color/etc. -> editor.value
+    |
+    +--> boolean -> editor.checked
+    |
+    +--> number -> numeric value + unit
+
+
+PROPERTY EDITING
+----------------
+
+User changes property field
+    |
+    v
+input/change event
+    |
+    v
+handlePropertyEditorEvent()
+    |
+    v
+getPropertyEditorValue()
+    |
+    v
+applyPropertyToControl()
+    |
+    v
+selectedControl.style / property / attribute
+    |
+    v
+Browser updates rendered control
+
+
+ELEMENT IDENTITY EDITING
+------------------------
+
+User changes Name / ID / Class
+    |
+    v
+handleElementIdentityChange()
+    |
+    +--> Name
+    |      |
+    |      +--> setAttribute("name", value)
+    |
+    +--> ID
+    |      |
+    |      +--> control.id = value
+    |
+    +--> Class
+           |
+           +--> setElementClass()
+
+
+CONTROL DELETION
+----------------
+
+User presses Delete
+    |
+    v
+document keydown
+    |
+    v
+handleDeleteKey()
+    |
+    +--> Is Delete key?
+    |
+    +--> Is selectedControl non-null?
+    |
+    v
+selectedControl.remove()
+    |
+    v
+deselectControl()
+    |
+    +--> clear selection
+    +--> hide properties
+    +--> reset editors
+    +--> selectedControl = null
+
+
+SELECTION STATE
+---------------
+
+selectedContainer
+    = destination for NEW controls
+
+selectedControl
+    = element currently being EDITED
+
+These are deliberately independent.
+
+Example:
+
+    selectedContainer = panel
+    selectedControl   = textbox
+
+Creating another control puts it in:
+
+    panel
+
+while property editing applies to:
+
+    textbox

@@ -1,0 +1,48 @@
+{
+"controlCategories": [
+        [
+            "Text & Display Controls",
+            [
+		"Heading 1",
+		"Heading 2",
+		"Heading 3",
+		"Heading 4",
+		"Paragraph",
+		"Hyperlink",
+		"Bullet Point List",
+		"Numbered List",
+                "Label"
+            ]
+        ],
+	[
+	    "Media",
+	    [
+		"Image"
+	    ]  
+	],
+        [
+            "Containers/Layout",
+            [
+                "Div",
+		"Table"
+            ]
+        ],
+        [
+            "Input Controls",
+            [
+		"Button",
+                "Textbox",
+		"Multiline Textbox",
+		"Dropdown List",
+		"Searchable Dropdown List",
+		"Listbox"
+            ]
+        ],
+	[
+	    "Custom Controls",
+	    [
+
+	    ]
+	]
+    ]
+}

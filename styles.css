@@ -1,0 +1,313 @@
+h1, h2, h3, h4, h5, h6, p {
+    display: inline-block;
+    margin: 0;
+}
+
+   	* {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+	#mainPageWrapper {
+	   display: flex;
+    	   flex-direction: row;
+	   gap: 0px;
+	   margin: 0px;
+	}
+
+	#sideBarDiv {
+	   width: 22%;
+	   height: 100vh;
+	}
+
+        /*
+         * Main page content is offset so that it does not
+         * appear underneath the sidebar.
+         */
+        .main-content {
+            min-height: 0px;
+	    width: 78%;
+            padding: 10px;
+        }
+
+        .toolbar,
+	.properties-panel {
+            width: 100%;
+            height: 100%;
+
+            min-height: 0;
+            overflow-y: auto;
+
+            display: flex;
+            flex-direction: column;
+
+            background: #eeeeee;
+            border-right: 1px solid #bbbbbb;
+        }
+
+        .toolbar {
+            padding: 8px;
+            background: #f5f5f5;
+        }
+
+        .properties-panel {
+	    display: none; /* Hide until a user selects a property */
+            padding: 12px;
+
+            background: #ffffff;
+            border-top: 1px solid #bbbbbb;
+        }
+
+        .properties-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 15px;
+        }
+
+        .properties-content {
+            color: #666666;
+            font-size: 13px;
+        }
+
+        /*
+         * Control categories.
+         */
+        .control-category {
+            margin-bottom: 6px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            background: #ffffff;
+        }
+
+        .control-category > summary {
+            padding: 8px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            user-select: none;
+            background: #e5e5e5;
+        }
+
+        .control-category > summary:hover {
+            background: #dcdcdc;
+        }
+
+        /*
+         * Controls inside each category.
+         */
+        .control-list {
+            display: flex;
+            flex-direction: column;
+            padding: 5px;
+            gap: 4px;
+        }
+
+        .control-type {
+            display: flex;
+            align-items: center;
+
+            width: 100%;
+            height: 50px;
+
+            padding: 4px;
+            border: 1px solid transparent;
+            border-radius: 3px;
+
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .control-type:hover {
+            background: #e9f2ff;
+            border-color: #9fc5f8;
+        }
+
+        .control-type:active {
+            background: #d7e8ff;
+        }
+
+        /*
+         * Image and label have the same height.
+         */
+        .control-type img,
+        .control-type .control-label {
+            height: 40px;
+        }
+
+        .control-type img {
+            width: 40px;
+            object-fit: contain;
+            margin-right: 8px;
+        }
+
+        .control-label {
+            display: flex;
+            align-items: center;
+            flex: 1;
+
+            font-size: 13px;
+            color: #333333;
+        }
+
+.property-row {
+    display: grid;
+    grid-template-columns: 30px 110px 1fr;
+    align-items: center;
+
+    min-height: 32px;
+    margin-bottom: 6px;
+    gap: 8px;
+}
+
+.property-label {
+    font-size: 12px;
+    color: #333333;
+    cursor: default;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.property-editor {
+    width: 100%;
+    min-width: 0;
+    /* height: 26px; */
+    padding: 2px 4px;
+    border: 1px solid #bbbbbb;
+    border-radius: 3px;
+    background: #ffffff;
+}
+
+.property-editor[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
+
+.property-editor[type="color"] {
+    padding: 1px;
+    cursor: pointer;
+}
+
+.number-property-editor {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    gap: 4px;
+}
+
+.number-property-editor .property-editor {
+    flex: 1;
+    min-width: 0;
+}
+
+.number-property-editor .property-unit-editor {
+    width: 70px;
+}
+
+
+
+.element-identity-section {
+    padding: 8px;
+    border-bottom: 1px solid #999;
+}
+
+.element-identity-section .property-section-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.element-identity-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.element-identity-row label {
+    width: 60px;
+    flex-shrink: 0;
+}
+
+.element-identity-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.control-properties-section {
+    padding: 8px;
+}
+
+#overheadBtnBarDiv {
+    display: flex;
+    flex-direction: row;
+    height: 40px;
+}
+
+#tabSelectBtnDiv {
+    width: 22%;
+    height: 40px;
+    display: flex;
+    flex-direction: row;
+    gap: 0px;
+    border: 1px solid #000000;
+}
+
+#actionBarDiv {
+    width: 78%;
+    height: 40px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    grid-template-rows: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    border: 1px solid #000000;
+}
+
+#overheadBarBtnDiv {
+    display: flex;
+    width: auto;
+    height: 100%;
+    justify-content: end;
+    gap: 10px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+#instructionLblDiv {
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0px;
+    border-width: 1px;
+    border-color: black;
+    /* border-style: solid;
+    background-color: orange; */
+}
+
+#instructionLbl {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    font-size: 1em; /* 0.8em */
+    white-space: wrap;
+    text-overflow: ellipsis;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: none;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.ioActionBtns {
+    height: 30px;
+    width: auto;
+}

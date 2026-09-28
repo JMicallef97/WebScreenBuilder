@@ -1,0 +1,263 @@
+============================================================
+CONTROL AND CONTAINER SELECTION
+============================================================
+
+OVERVIEW
+--------
+The editor maintains two different selections:
+
+    selectedControl
+        The control currently being edited.
+
+    selectedContainer
+        The container into which newly-created controls
+        will be placed.
+
+The canvas uses event delegation so that controls created
+after startup do not need individual mouse handlers.
+
+
+INITIALIZATION
+--------------
+During startup:
+
+    initializeControlCanvas()
+
+is called.
+
+It obtains:
+
+    document.getElementById("controlCanvas")
+
+and registers:
+
+    handleCanvasPointerDown()
+
+as a pointerdown event handler.
+
+The handler is registered using the capture phase.
+
+This is important for controls such as textboxes, checkboxes,
+and other input elements because those elements have their
+own browser interaction behavior.
+
+
+USER CLICKS A CONTROL
+--------------------
+When the user clicks somewhere inside controlCanvas:
+
+    handleCanvasPointerDown(event)
+
+runs.
+
+The handler uses:
+
+    event.target.closest(".created-control")
+
+to find the editor-created control associated with the
+click.
+
+closest() is useful because the user may click an element
+inside a control rather than directly on the control itself.
+
+
+IF THE CLICKED ELEMENT IS A CONTAINER
+-------------------------------------
+The handler calls:
+
+    isContainerControl(clickedElement)
+
+This determines whether the control type can contain other
+controls.
+
+Examples of container types might include:
+
+    div
+    container
+    panel
+    section
+    form
+
+If the result is true, the handler calls:
+
+    selectContainer(clickedElement)
+
+
+SELECTING THE CONTAINER
+-----------------------
+selectContainer() performs two jobs.
+
+First, it removes the previous container's creation
+highlight.
+
+Second, it assigns:
+
+    selectedContainer = container
+
+The selected container is then highlighted.
+
+For controlCanvas, a random color is used.
+
+For other containers, the code obtains the parent's background
+color and calls:
+
+    getContrastingRandomColor(parentColor)
+
+This creates a highlight that contrasts with the parent.
+
+
+THE CONTROL IS ALSO SELECTED FOR EDITING
+----------------------------------------
+After handling the container-selection portion, the canvas
+handler calls:
+
+    selectControl(
+        clickedElement,
+        clickedElement.dataset.controlType
+    )
+
+This means a container can simultaneously be:
+
+    selectedContainer
+        AND
+    selectedControl
+
+This is intentional.
+
+For example, if the user clicks a div:
+
+    selectedContainer = div
+    selectedControl   = div
+
+The div is therefore the destination for newly-created
+controls AND the element whose properties are displayed.
+
+
+CLICKING A NON-CONTAINER CONTROL
+--------------------------------
+If the clicked control is not a container, the handler does
+not change selectedContainer.
+
+It still calls:
+
+    selectControl()
+
+Therefore:
+
+    selectedContainer
+
+continues to point to the previously selected container,
+while:
+
+    selectedControl
+
+changes to the clicked control.
+
+
+EXAMPLE
+-------
+Suppose the document contains:
+
+    controlCanvas
+        |
+        +-- div1
+                |
+                +-- textbox1
+
+
+User clicks div1:
+
+    selectedContainer = div1
+    selectedControl   = div1
+
+
+User creates a button:
+
+    button is inserted into div1
+
+
+User then clicks textbox1:
+
+    selectedContainer = div1
+    selectedControl   = textbox1
+
+
+User creates another button:
+
+    button is STILL inserted into div1
+
+This separation prevents selecting a textbox for editing from
+accidentally changing the destination container for future
+controls.
+
+
+SELECTING A CONTROL
+-------------------
+selectControl() first checks whether the clicked control is
+already selected.
+
+If:
+
+    selectedControl === control
+
+then the user is effectively clicking the selected control
+again.
+
+The function calls:
+
+    deselectControl()
+
+Otherwise, the old selection is cleared and:
+
+    selectedControl = control
+    selectedControlType = controlType
+
+are assigned.
+
+
+HIGHLIGHTING
+------------
+selectControl() calculates a color that contrasts with the
+control's parent and applies an outline/highlight.
+
+This makes the selected control visually obvious.
+
+
+LOADING PROPERTIES
+------------------
+After selecting the control, selectControl() calls:
+
+    loadElementIdentityValues(control)
+
+This populates the Name, ID, and Class fields.
+
+It then calls:
+
+    updateVisibleProperties(controlType)
+
+This determines which property controls should be visible.
+
+Finally it calls:
+
+    loadControlPropertyValues(control)
+
+This reads the selected element's actual properties and
+places their values into the property editor fields.
+
+
+DESELECTING
+-----------
+Clicking an already-selected control calls:
+
+    deselectControl()
+
+This:
+
+    1. Removes the selection highlight.
+    2. Clears/disables Name, ID, and Class.
+    3. Hides the property controls.
+    4. Resets their values.
+    5. Sets selectedControl to null.
+    6. Sets selectedControlType to null.
+
+selectedContainer is intentionally not cleared.

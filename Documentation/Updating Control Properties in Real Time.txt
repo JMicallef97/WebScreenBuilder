@@ -1,0 +1,267 @@
+============================================================
+UPDATING PROPERTIES ON SELECTED ELEMENTS
+============================================================
+
+OVERVIEW
+--------
+Property changes are handled through event delegation on
+the properties panel.
+
+Execution path:
+
+    User edits property field
+            |
+            v
+    input/change event
+            |
+            v
+    handlePropertyEditorEvent()
+            |
+            v
+    getPropertyEditorValue()
+            |
+            v
+    applyPropertyToControl()
+            |
+            v
+    selectedControl is modified
+
+
+STEP 1 - REGISTER PROPERTY EVENTS
+---------------------------------
+During initialization:
+
+    initializePropertyEditorHandlers()
+
+registers listeners for:
+
+    input
+    change
+
+on the properties panel.
+
+
+STEP 2 - USER MODIFIES A FIELD
+------------------------------
+For example, the user changes:
+
+    Width = 250
+    Unit  = px
+
+The browser generates an input/change event.
+
+Because the event is registered on the properties panel,
+individual controls don't each require their own listener.
+
+
+STEP 3 - FIND THE PROPERTY EDITOR
+---------------------------------
+handlePropertyEditorEvent(event) examines:
+
+    event.target
+
+and determines which property editor generated the event.
+
+For a normal property editor it finds:
+
+    .property-editor
+
+For a number property it finds:
+
+    .number-property-editor
+
+The property name is stored in:
+
+    editor.dataset.property
+
+
+STEP 4 - READ THE NEW VALUE
+---------------------------
+handlePropertyEditorEvent() calls:
+
+    getPropertyEditorValue(editor)
+
+For normal editors, the function returns the editor's
+current value.
+
+For boolean editors it returns:
+
+    editor.checked
+
+For number properties it combines:
+
+    numeric input
+    +
+    selected unit
+
+For example:
+
+    number = 250
+    unit   = px
+
+becomes:
+
+    "250px"
+
+
+STEP 5 - APPLY THE PROPERTY
+---------------------------
+The event handler calls:
+
+    applyPropertyToControl(
+        selectedControl,
+        propertyName,
+        value
+    )
+
+The currently selected element is therefore always the
+target of the property change.
+
+
+STEP 6 - MAP PROPERTY TO HTML/CSS
+---------------------------------
+applyPropertyToControl() contains the mapping between the
+application's property names and the actual HTML/CSS
+properties.
+
+Examples:
+
+    width
+        -> control.style.width
+
+    height
+        -> control.style.height
+
+    padding
+        -> control.style.padding
+
+    margin
+        -> control.style.margin
+
+    backgroundColor
+        -> control.style.backgroundColor
+
+    foregroundColor
+        -> control.style.color
+
+    fontSize
+        -> control.style.fontSize
+
+    borderWidth
+        -> control.style.borderWidth
+
+    borderRadius
+        -> control.style.borderRadius
+
+
+STEP 7 - BROWSER APPLIES THE CHANGE
+-----------------------------------
+Once the JavaScript assigns the value to the DOM element,
+the browser immediately updates the rendered control.
+
+For example:
+
+    control.style.width = "250px"
+
+causes the browser to redraw the selected control at 250px
+wide.
+
+
+ELEMENT IDENTITY PROPERTIES
+---------------------------
+Name, ID, and Class are handled separately from the normal
+property editors.
+
+They use:
+
+    handleElementIdentityChange(event)
+
+The event identifies the field by its ID.
+
+
+NAME
+----
+For the Name field, the code uses:
+
+    control.setAttribute(
+        "name",
+        value
+    )
+
+If the field is empty, the name attribute is removed.
+
+
+ID
+--
+For the ID field:
+
+    control.id = value
+
+
+CLASS
+-----
+The Class field is handled by:
+
+    setElementClass(
+        control,
+        value
+    )
+
+This replaces the user's classes while preserving editor
+internal classes such as:
+
+    created-control
+
+This is necessary because the editor depends on that class
+for control identification and selection.
+
+
+NUMBER AND UNIT CHANGES
+-----------------------
+A number property consists of two controls:
+
+    numeric input
+    unit combobox
+
+Changing either one generates an event.
+
+Both events ultimately reach:
+
+    handlePropertyEditorEvent()
+
+The function reads the complete number property again,
+combining the number and unit before calling:
+
+    applyPropertyToControl()
+
+Therefore changing:
+
+    100px
+
+to:
+
+    100em
+
+updates the selected element's CSS property from:
+
+    "100px"
+
+to:
+
+    "100em"
+
+
+IMPORTANT STATE VARIABLES
+-------------------------
+The property update mechanism depends on:
+
+    selectedControl
+
+This variable must refer to the element currently being
+edited.
+
+If selectedControl is null, the property event handler
+returns without making a change.
+
+This prevents property-panel changes from accidentally
+modifying an element when nothing is selected.

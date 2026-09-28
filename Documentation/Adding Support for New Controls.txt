@@ -1,0 +1,4 @@
+1. Add entries in the JSON files (controlPropertiesJSON and controlCategoriesJSON)
+2. Go to 'getHTMLTagForControlType()' in 'helperScripts.js' and add an entry for the new control type
+3. Go to the 'createControl' function in the 'ctrlManagementScripts' file and add an entry for the new control (i.e., "h1" for header 1)
+	-make sure the returned type can be used in 'document.createElement' because the returned value will be put into document.createElement to generate the element.

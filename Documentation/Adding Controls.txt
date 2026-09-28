@@ -1,0 +1,213 @@
+============================================================
+ADDING CONTROLS
+============================================================
+
+OVERVIEW
+--------
+A control is added when the user clicks one of the control
+creation buttons in the toolbar.
+
+The creation process is:
+
+    Toolbar control button
+            |
+            v
+    handleControlCreationButton()
+            |
+            v
+    createControl()
+            |
+            +--> getSelectedContainer()
+            |
+            +--> getHTMLTagForControlType()
+            |
+            +--> getInputTypeForControlType()
+            |
+            +--> applyDefaultControlProperties()
+            |
+            v
+    container.appendChild(control)
+            |
+            v
+    selectControl()
+
+
+STEP 1 - USER CLICKS A CREATION BUTTON
+---------------------------------------
+Each control type in the toolbar has a click handler.
+
+The handler ultimately calls:
+
+    handleControlCreationButton(controlType)
+
+The controlType parameter identifies the type of control
+being requested, for example:
+
+    "button"
+    "textbox"
+    "div"
+    "checkbox"
+
+
+STEP 2 - HANDLE CONTROL CREATION REQUEST
+-----------------------------------------
+handleControlCreationButton() calls:
+
+    createControl(controlType)
+
+It does not need to know which container should receive
+the new control. That responsibility belongs to createControl().
+
+
+STEP 3 - DETERMINE THE DESTINATION CONTAINER
+--------------------------------------------
+createControl() calls:
+
+    getSelectedContainer()
+
+getSelectedContainer() returns:
+
+    selectedContainer
+
+if the user has previously selected a container.
+
+If no container has been selected, it returns:
+
+    document.getElementById("controlCanvas")
+
+Therefore, controlCanvas is always the fallback destination.
+
+
+STEP 4 - DETERMINE THE HTML ELEMENT
+-----------------------------------
+createControl() calls:
+
+    getHTMLTagForControlType(controlType)
+
+This translates the application's control type into an
+HTML element.
+
+Examples:
+
+    "button"   -> "button"
+    "textbox"  -> "input"
+    "textarea" -> "textarea"
+    "div"      -> "div"
+    "select"   -> "select"
+
+The result is passed to:
+
+    document.createElement(tagName)
+
+
+STEP 5 - CONFIGURE INPUT ELEMENTS
+---------------------------------
+If the resulting tag is "input", createControl() calls:
+
+    getInputTypeForControlType(controlType)
+
+This determines the HTML input type.
+
+Examples:
+
+    "textbox"  -> input type="text"
+    "checkbox" -> input type="checkbox"
+    "radio"    -> input type="radio"
+    "color"    -> input type="color"
+
+
+STEP 6 - IDENTIFY THE ELEMENT AS AN EDITOR CONTROL
+--------------------------------------------------
+The new element receives:
+
+    class="created-control"
+
+This class is important because the editor uses it to
+distinguish controls created by the editor from unrelated
+elements.
+
+The control type is also stored:
+
+    control.dataset.controlType = controlType
+
+This allows later code to determine what type of control
+the element represents without having to infer it from
+the HTML tag.
+
+
+STEP 7 - APPLY DEFAULT PROPERTIES
+---------------------------------
+createControl() calls:
+
+    applyDefaultControlProperties(
+        control,
+        controlType
+    )
+
+This function reads the property definitions loaded from
+controlPropertiesJSON.
+
+It determines:
+
+    1. Which properties are common to all controls.
+    2. Which properties are specifically bound to this
+       control type.
+    3. The default value defined for each property.
+
+It combines the common and control-specific properties,
+removes duplicates, and calls:
+
+    applyPropertyToControl(
+        control,
+        propertyName,
+        defaultValue
+    )
+
+for each property.
+
+Therefore the new control is styled/configured before it
+is inserted into the DOM.
+
+
+STEP 8 - ADD THE CONTROL TO THE DOM
+-----------------------------------
+Once the element has been configured:
+
+    container.appendChild(control)
+
+adds it to the currently selected container.
+
+At this point the control becomes part of the document.
+
+
+STEP 9 - AUTOMATICALLY SELECT THE NEW CONTROL
+---------------------------------------------
+createControl() then calls:
+
+    selectControl(
+        control,
+        controlType
+    )
+
+This makes the newly-created control the currently selected
+control.
+
+As a result, the control is highlighted and its properties
+are loaded into the properties panel.
+
+IMPORTANT
+---------
+selectedContainer and selectedControl are separate variables.
+
+selectedContainer determines WHERE the next control will
+be created.
+
+selectedControl determines WHICH existing control is being
+edited.
+
+Creating a button inside a selected div therefore results in:
+
+    selectedContainer = div
+    selectedControl   = newly-created button
+
+The div remains the selected creation container.

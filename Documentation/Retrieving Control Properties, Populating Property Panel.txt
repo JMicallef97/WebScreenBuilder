@@ -1,0 +1,213 @@
+============================================================
+RETRIEVING PROPERTIES FROM A SELECTED ELEMENT
+============================================================
+
+OVERVIEW
+--------
+When a control is selected, its current values are read from
+the DOM and copied into the corresponding property-editor
+controls.
+
+Execution path:
+
+    selectControl()
+            |
+            +--> loadElementIdentityValues()
+            |
+            +--> updateVisibleProperties()
+            |
+            +--> loadControlPropertyValues()
+                        |
+                        +--> getControlPropertyValue()
+                        |
+                        +--> property editor value assignment
+
+
+STEP 1 - SELECT THE CONTROL
+---------------------------
+selectControl() establishes:
+
+    selectedControl = control
+
+and:
+
+    selectedControlType = controlType
+
+
+STEP 2 - LOAD NAME, ID AND CLASS
+--------------------------------
+selectControl() calls:
+
+    loadElementIdentityValues(control)
+
+This reads:
+
+    control.getAttribute("name")
+    control.id
+    control.className
+
+and puts the values into:
+
+    elementName
+    elementId
+    elementClass
+
+If there is no selected control, these fields are cleared
+and disabled.
+
+
+STEP 3 - DETERMINE VISIBLE PROPERTIES
+-------------------------------------
+selectControl() calls:
+
+    updateVisibleProperties(controlType)
+
+The property system uses controlPropertiesJSON.
+
+The JSON contains:
+
+    propertydefs
+
+        Definitions of all known properties.
+
+    commonProperties
+
+        Properties applicable to every control.
+
+    controlPropertyBindings
+
+        Control-specific property lists.
+
+The editor initially creates property controls for all
+properties defined in propertydefs.
+
+They are hidden until a control is selected.
+
+
+STEP 4 - SHOW APPLICABLE PROPERTIES
+-----------------------------------
+updateVisibleProperties() determines the properties applicable
+to the selected control.
+
+The visible set consists of:
+
+    commonProperties
+        +
+    properties in the binding for controlType
+
+Properties not in that set remain hidden.
+
+
+STEP 5 - READ ACTUAL VALUES
+---------------------------
+selectControl() then calls:
+
+    loadControlPropertyValues(control)
+
+This iterates through the property editors.
+
+
+STEP 6 - LOOK UP THE PROPERTY DEFINITION
+----------------------------------------
+For each property editor, the code obtains:
+
+    editor.dataset.property
+
+This identifies the property represented by that editor.
+
+It then looks up:
+
+    propertyDefinitions[propertyName]
+
+to determine the property's data type and other metadata.
+
+
+STEP 7 - RETRIEVE THE VALUE FROM THE ELEMENT
+--------------------------------------------
+The code calls:
+
+    getControlPropertyValue(
+        control,
+        propertyName
+    )
+
+This function reads the appropriate value from the selected
+HTML element.
+
+For CSS properties it normally reads from the element's
+style/computed styling mechanism according to the property's
+implementation.
+
+For HTML attributes/properties it reads values such as:
+
+    control.value
+    control.placeholder
+    control.checked
+    control.id
+
+depending on the property.
+
+
+STEP 8 - POPULATE THE EDITOR
+----------------------------
+Once the value is obtained, loadControlPropertyValues()
+places it into the corresponding editor.
+
+For a boolean property:
+
+    editor.checked = value
+
+For a normal text/color/etc. property:
+
+    editor.value = value
+
+
+NUMBER PROPERTIES
+-----------------
+Number properties use a special wrapper containing:
+
+    numeric input
+    unit select
+
+For example:
+
+    [100] [px]
+
+If the actual property is:
+
+    100px
+
+the number editor receives:
+
+    100
+
+and the unit editor receives:
+
+    px
+
+This separation allows the user to use the browser's numeric
+up/down control while independently choosing the CSS unit.
+
+
+SETTING NUMBER EDITOR VALUES
+----------------------------
+For number properties:
+
+    setNumberPropertyEditorValue()
+
+splits the CSS value into:
+
+    numeric portion
+    unit
+
+For example:
+
+    "2.5em"
+
+becomes:
+
+    number = "2.5"
+    unit   = "em"
+
+The numeric input and unit combobox are then populated
+independently.
