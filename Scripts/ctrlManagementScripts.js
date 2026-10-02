@@ -199,8 +199,8 @@ function createControl(
 		dropdownContainerDiv.id = control.id + "DropdownDiv";
 
 		// add the list ID to the control so it can be found/updated later
-		control.backingListID = searchableItemList.id;
-		control.dropdownDivID = dropdownContainerDiv.id;
+		control.setAttribute('backingListID', searchableItemList.id);
+		control.setAttribute('dropdownDivID', dropdownContainerDiv.id);
 		control.isDropdownPositioned = "false";
 
 		// add a reference to the dropdown div
@@ -225,9 +225,7 @@ function createControl(
 		// bind event handlers to the list
 		searchableItemList.addEventListener("mousedown", event => { stb_SelectItem(document.getElementById(control.id), event.target.textContent); } );
 
-		console.log(document.getElementById(control.backingListID).querySelectorAll("option"));
-
-		//console.log(control.id + " NEWLY CREATED CONTROL ID");
+		//console.log(document.getElementById(control.backingListID).querySelectorAll("option"));
 
 		// position dropdown
 		positionDropdown(document.getElementById(dropdownContainerDiv.id), document.getElementById(control.id));
@@ -350,8 +348,8 @@ function deleteControl(isCreateCtrlActionBeingUndone = false) {
 		if (controlToDelete.dataset.controlType == "Searchable Dropdown List") {
 			// delete dropdown div and list
 			// 1. Get references to controls
-			const ctrlDropdownDivRef = document.getElementById(controlToDelete.dropdownDivID);
-			const ctrlSearchListRef = document.getElementById(controlToDelete.backingListID);
+			const ctrlDropdownDivRef = document.getElementById(controlToDelete.getAttribute('dropdownDivID'));
+			const ctrlSearchListRef = document.getElementById(controlToDelete.getAttribute('backingListID'));
 		
 			// 2. Remove controls from their parent containers
 			ctrlDropdownDivRef.parentNode.removeChild(ctrlDropdownDivRef);
@@ -549,7 +547,7 @@ function selectControl(control, controlType) {
 			movingContainerControl.isDropdownPositioned = "false";
 
 			// reposition the dropdown
-			positionDropdown(document.getElementById(movingContainerControl.dropdownDivID), movingContainerControl);
+			positionDropdown(document.getElementById(movingContainerControl.getAttribute('dropdownDivID')), movingContainerControl);
 			break;
 	}
 
@@ -660,7 +658,7 @@ if (!selectedControl) {
 	case "Searchable Dropdown List":
 		// manually run the 'close dropdown' function to ensure the dropdown is closed (since clicking onto another control after selecting the dropdown list won't cause the control to close)
 
-		closeDropdown(document.getElementById(selectedControl.backingListID), document.getElementById(selectedControl.dropdownDivID));
+		closeDropdown(document.getElementById(selectedControl.getAttribute('backingListID')), document.getElementById(selectedControl.getAttribute('dropdownDivID')));
 		break;
     }
 
@@ -768,7 +766,7 @@ function selectContainer(
 	switch (movingContainerControl.dataset.controlType) {
 		case "Searchable Dropdown List":
 			// reposition the dropdown
-			positionDropdown(document.getElementById(movingContainerControl.dropdownDivID), movingContainerControl);
+			positionDropdown(document.getElementById(movingContainerControl.getAttribute('dropdownDivID')), movingContainerControl);
 			break;
 	}
 
@@ -782,7 +780,7 @@ function selectContainer(
     }
 
 
-	console.log("REACHED THIS AREA");
+	//console.log("REACHED THIS AREA");
 
     /*
      * The canvas gets a random color.

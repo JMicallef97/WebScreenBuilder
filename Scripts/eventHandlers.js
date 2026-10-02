@@ -371,7 +371,7 @@ function mdouBtn_OnClick(
 	switch (selectedControl.dataset.controlType) {
 		case "Searchable Dropdown List":
 			// move the dropdown div in order as well (to ensure everything is properly arranged)
-			selectedControl.parentNode.insertBefore(document.getElementById(selectedControl.dropdownDivID), previousCtrl);
+			selectedControl.parentNode.insertBefore(document.getElementById(selectedControl.getAttribute('dropdownDivID')), previousCtrl);
 			break;
 	}
 
@@ -412,7 +412,7 @@ function mdodBtn_OnClick(
 	switch (selectedControl.dataset.controlType) {
 		case "Searchable Dropdown List":
 			// move the dropdown div in order as well (to ensure everything is properly arranged)
-			selectedControl.parentNode.insertBefore(selectedControl, document.getElementById(selectedControl.dropdownDivID));
+			selectedControl.parentNode.insertBefore(selectedControl, document.getElementById(selectedControl.getAttribute('dropdownDivID')));
 			break;
 	}
 
