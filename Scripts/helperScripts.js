@@ -510,23 +510,54 @@ function getNextDisplayOrderedElement(element) {
 
 // this function moves the control referenced with the 'controlRef' parameter into the container control referenced with the 'newContainerRef'. 
 // -If newContainerRef is null, isn't a container control type (can check by running the 'isContainerControl'), controlRef is null, or either parameter isn't an HTML element, nothing will happen.
-function moveElementToContainer(newContainerRef, controlRef) {
+function moveElementToContainer(
+	newContainerRef, 
+	controlRef, 
+	isExecutingUndoRedoStep = false
+) {
 	// error checks
-	if (newContainerRef == null || controlRef == null || !checkifVariableIsDOMElement(newContainerRef) || !checkifVariableIsDOMElement(controlRef) || !isContainerControl(newContainerRef.dataset.controlType)) {
-		console.log("Couldn't move control; one or more conditions are incorrect (newContainerRef is null, controlRef is null, or newContainer ref isn't a container control type");
+	if (newContainerRef == null || controlRef == null || newContainerRef == controlRef || !checkifVariableIsDOMElement(newContainerRef) || !checkifVariableIsDOMElement(controlRef) || !isContainerControl(newContainerRef.dataset.controlType)) {
+		console.log("Couldn't move control; one or more conditions are incorrect (newContainerRef is null, controlRef is null, newContainerRef == controlRef, newContainer ref isn't a container control type");
 		return;
 	}
 
-	// move the parent control
+	// check if this function is being called just to undo or redo a 'move control to container' action (don't want to create duplicate undo/redo steps)
+	if (!isExecutingUndoRedoStep) {
+		// add a 'move control container' undo-redo step
+		addChangeControlContainer_URS(controlRef.id, controlRef.parentElement.id, newContainerRef.id);
+	}
+
+	// remove controlRef from the DOM (since it's not possible to directly insert a control into an element farther down in the DOM)
+
+
+/*
+	// move the parent control (old way)
 	newContainerRef.appendChild(controlRef);
+*/
+
+	// create a placeholder (to move newContainerRef outside of the DOM structure, to avoid creating a circular loop when
+    	let placeholder = document.createComment("destination");
+    	newContainerRef.replaceWith(placeholder);
+
+    	controlRef.remove();
+    	newContainerRef.appendChild(controlRef);
 
 	// depending on control type, move child controls
 	switch (controlRef.dataset.controlType) {
 		case "Searchable Dropdown List":
-			// move the dropdown div
-			newContainerRef.appendChild(document.getElementById(controlRef.dropdownDivID));
+			// remove the child control
+			var dropdownDiv = document.getElementById(controlRef.dropdownDivID);
+
+			// remove dropdown div from the DOM (to be able to move it)
+			dropdownDiv.remove();
+
+			// move the dropdown div into the parent control
+			newContainerRef.appendChild(dropdownDiv);
 			break;
 	}
+
+    	// Restore the destination to its original position
+    	placeholder.replaceWith(newContainerRef);
 }
 
 // this function returns a boolean indicating if the variable provided for the 'varToCheck' parameter is an element in the DOM or not

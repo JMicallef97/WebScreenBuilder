@@ -13,6 +13,13 @@ let currentViewedSidebarClassID = ".toolbar";
 let createdControlCount = 0;
 let autoAssignIDCounter = 0;
 
+// used to track property edits/changes
+let editingProperty_CtrlID = "";
+let editingProperty_PropName = "";
+let editingProperty_NewPropValue = "";
+let editingProperty_OldPropValue = "";
+let editingProperty_IsModifyingProperty = false;
+
 let loadedCustomControlNames = [];
 
 // status flag indicating if the user is trying to move a control to another container (after clicking a control and then the 'move to next selected container' button)

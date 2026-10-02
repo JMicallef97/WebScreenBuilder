@@ -319,6 +319,10 @@ function initializeControlCanvas() {
         return;
     }
 
+
+    // set properties
+    controlCanvas.dataset.controlType = "div";
+
     /*
      * The canvas is the default container.
      */

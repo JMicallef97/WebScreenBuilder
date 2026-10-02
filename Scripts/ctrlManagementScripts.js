@@ -15,7 +15,7 @@
         return JSON.parse(jsonElement.textContent);
     }
 
-// this function inserts a custom control into
+// this function inserts a custom control into the currently selected container
 function insertCustomElement(controlType, selectedContainer) {
 	const controlCreationButton = document.getElementById(controlType + " Toolbar Creation Button");
 	const customElementHTML = controlCreationButton.dataset.elementHTML;
@@ -32,7 +32,8 @@ function insertCustomElement(controlType, selectedContainer) {
 
 
 function createControl(
-    controlType
+    controlType,
+    isRedoingAction = false
 ) {
 
     /*
@@ -56,6 +57,7 @@ function createControl(
         return null;
     }
 
+    console.log("CONTROL TYPE: " + controlType);
 
     /*
      * Create the HTML element.
@@ -248,8 +250,126 @@ function createControl(
         controlType
     );
 
+
+    if (typeof isRedoingAction != "boolean") {
+    	// add a 'create control' event to the undo/redo stack to enable undoing/redoing the event
+    	addCreateCtrl_URS(control.id, controlType, container.id);
+    }
+
     return control;
 }
+
+
+// this function deletes the selected control
+function deleteControl(isCreateCtrlActionBeingUndone = false) {
+
+   if (!selectedControl) {
+        return;
+    }
+
+    /*
+     * Don't delete the control if the user is actually
+     * typing into a text field.
+     */
+    const activeElement =
+        document.activeElement;
+
+    const isTextEditingField =
+        activeElement &&
+        (
+            activeElement.tagName === "TEXTAREA" ||
+            (
+                activeElement.tagName === "INPUT" &&
+                (
+                    activeElement.type === "text" ||
+                    activeElement.type === "number" ||
+                    activeElement.type === "search" ||
+                    activeElement.type === "url" ||
+                    activeElement.type === "email"
+                )
+            )
+        );
+
+    if (isTextEditingField) {
+        return;
+    }
+
+
+    /*
+     * Prevent the browser's default Delete behavior.
+     */
+    event.preventDefault();
+    event.stopPropagation();
+
+
+    /*
+     * Keep a reference to the control before
+     * clearing the selection.
+     */
+    const controlToDelete =
+        selectedControl;
+
+    // create a 'delete control' action for the undo/redo list (if this control deletion isn't being driven by an 'undo create control' action
+    if (typeof isCreateCtrlActionBeingUndone == "boolean" && !isCreateCtrlActionBeingUndone) {
+
+	if (selectedControl.previousElementSibling != null) {
+		addDeleteCtrl_URS(selectedControl.id, selectedControl.dataset.controlType, selectedControl.outerHTML, selectedControl.previousElementSibling.id, selectedControl.parentElement.id);
+	} else {
+		addDeleteCtrl_URS(selectedControl.id, selectedControl.dataset.controlType, selectedControl.outerHTML, "", selectedControl.parentElement.id);		
+	}
+    }
+
+
+    /*
+     * Deselect the control.
+     */
+    deselectControl();
+
+    console.log("CONTROL TYPE BEING DELETED: " + controlToDelete.dataset.controlType);
+
+    /*
+     * Remove it from the DOM.
+     */
+    if (controlToDelete && controlToDelete.parentNode) {
+	// check if the selected control is a table cell
+	if (controlToDelete.dataset.controlType == "tableCell") {
+		// delete inner HTML; table cell can't be deleted except by adjusting the table row/column count in the table
+		// 1. Record the number of child elements in the table cell
+		let tableCellChildControlCount = controlToDelete.childElementCount;
+		// 2. Clear out the inner HTML (delete all contained controls)
+		controlToDelete.innerHTML = "";
+		// 3. Update the control count
+		createdControlCount -= tableCellChildControlCount;
+    		// run the 'control changed' event (since control count just changed)
+    		onControlCountChanged();
+
+		//console.log("TODO; DELETE INNER TABLE ELEMENTS");
+	} else {
+
+		// check if control is a specific type (i.e., contains multiple child elements)
+		if (controlToDelete.dataset.controlType == "Searchable Dropdown List") {
+			// delete dropdown div and list
+			// 1. Get references to controls
+			const ctrlDropdownDivRef = document.getElementById(controlToDelete.dropdownDivID);
+			const ctrlSearchListRef = document.getElementById(controlToDelete.backingListID);
+		
+			// 2. Remove controls from their parent containers
+			ctrlDropdownDivRef.parentNode.removeChild(ctrlDropdownDivRef);
+			ctrlSearchListRef.parentNode.removeChild(ctrlSearchListRef);
+		}
+
+		// delete selected control
+        	controlToDelete.parentNode.removeChild(
+            		controlToDelete);
+
+    		// increment the number of created controls
+    		createdControlCount -= 1;
+    		// run the 'control changed' event (since control count just changed)
+    		onControlCountChanged();
+	}
+    }
+}
+
 
 
 function getApplicableProperties(
@@ -347,6 +467,7 @@ function applyDefaultProperties(
 
 
 function selectControl(control, controlType) {
+
     // check if the user clicked on the control itself (supposed to toggle selection)
     if (selectedControl === control) {
 	// check if the selected control is a table cell; if so, correct behavior is to select the table (since otherwise there's no way to select the table) 
@@ -510,17 +631,6 @@ function selectControl(control, controlType) {
     // update the display order adjustment buttons for the new control
     updateCtrlDisplayOrderAdjustmentBtns();
 
-/*
-if (getPreviousDisplayOrderedElement(control) != null) {
-console.log(getPreviousDisplayOrderedElement(control).id + " CONTROL BEFORE");
-}
-
-if (getNextDisplayOrderedElement(control) != null) {
-console.log(getNextDisplayOrderedElement(control).id + " CONTROL AFTER");
-}
-*/
-
-
     /*
      * Load the selected control's
      * property values.
@@ -587,6 +697,10 @@ if (!selectedControl) {
      * Reset the property editor values.
      */
     resetPropertyEditorValues();
+
+    // when the user deselects a control, there may still be an unrecorded property update
+    addCtrlPropertyModifyStepToURSList();
+
 
     // print log file explaining what happened
     console.log("Deselecting control '" + selectedControl.id + "'.");
@@ -928,7 +1042,8 @@ function applyDefaultControlProperties(
             applyPropertyToControl(
                 control,
                 propertyName,
-                defaultValue
+                defaultValue,
+		true
             );
         }
     );

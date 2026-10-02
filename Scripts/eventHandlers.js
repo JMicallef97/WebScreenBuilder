@@ -130,101 +130,8 @@ function onDeleteKeyPress(event) {
         return;
     }
 
-    if (!selectedControl) {
-        return;
-    }
-
-    /*
-     * Don't delete the control if the user is actually
-     * typing into a text field.
-     */
-    const activeElement =
-        document.activeElement;
-
-    const isTextEditingField =
-        activeElement &&
-        (
-            activeElement.tagName === "TEXTAREA" ||
-            (
-                activeElement.tagName === "INPUT" &&
-                (
-                    activeElement.type === "text" ||
-                    activeElement.type === "number" ||
-                    activeElement.type === "search" ||
-                    activeElement.type === "url" ||
-                    activeElement.type === "email"
-                )
-            )
-        );
-
-    if (isTextEditingField) {
-        return;
-    }
-
-
-    /*
-     * Prevent the browser's default Delete behavior.
-     */
-    event.preventDefault();
-    event.stopPropagation();
-
-
-    /*
-     * Keep a reference to the control before
-     * clearing the selection.
-     */
-    const controlToDelete =
-        selectedControl;
-
-
-    /*
-     * Deselect the control.
-     */
-    deselectControl();
-
-    console.log("CONTROL TYPE BEING DELETED: " + controlToDelete.dataset.controlType);
-
-    /*
-     * Remove it from the DOM.
-     */
-    if (controlToDelete && controlToDelete.parentNode) {
-	// check if the selected control is a table cell
-	if (controlToDelete.dataset.controlType == "tableCell") {
-		// delete inner HTML; table cell can't be deleted except by adjusting the table row/column count in the table
-		// 1. Record the number of child elements in the table cell
-		let tableCellChildControlCount = controlToDelete.childElementCount;
-		// 2. Clear out the inner HTML (delete all contained controls)
-		controlToDelete.innerHTML = "";
-		// 3. Update the control count
-		createdControlCount -= tableCellChildControlCount;
-    		// run the 'control changed' event (since control count just changed)
-    		onControlCountChanged();
-
-		//console.log("TODO; DELETE INNER TABLE ELEMENTS");
-	} else {
-
-		// check if control is a specific type (i.e., contains multiple child elements)
-		if (controlToDelete.dataset.controlType == "Searchable Dropdown List") {
-			// delete dropdown div and list
-			// 1. Get references to controls
-			const ctrlDropdownDivRef = document.getElementById(controlToDelete.dropdownDivID);
-			const ctrlSearchListRef = document.getElementById(controlToDelete.backingListID);
-		
-			// 2. Remove controls from their parent containers
-			ctrlDropdownDivRef.parentNode.removeChild(ctrlDropdownDivRef);
-			ctrlSearchListRef.parentNode.removeChild(ctrlSearchListRef);
-		}
-
-		// delete selected control
-        	controlToDelete.parentNode.removeChild(
-            		controlToDelete);
-
-    		// increment the number of created controls
-    		createdControlCount -= 1;
-    		// run the 'control changed' event (since control count just changed)
-    		onControlCountChanged();
-	}
-    }
+    // run the event
+    deleteControl();
 }
 
 function handlePropertyEditorEvent(event) {
@@ -440,9 +347,19 @@ function onPageLoaded() {
 //=======CONTROL ACTION BUTTON EVENT HANDLERS=========
 
 // event handler that fires when the user clicks the 'move display order up' button (which moves the control 1 step up in its containing control's display order/hierarchy)
-function mdouBtn_OnClick() {
+function mdouBtn_OnClick(
+	isExecutingUndoRedoStep = false
+) {
 	// check for errors (i.e., no control selected) to avoid exceptions
 	if (!selectedControl) { return; }
+
+	// check if a 'modify control property' step needs to be added
+	if (editingProperty_IsModifyingProperty) {
+		addCtrlPropertyModifyStepToURSList();
+	}
+
+	// record the selectd control id
+	const selCtrlID = selectedControl.id;
 
 	// get the previous control (to move the selected control(s) before)
 	const previousCtrl = getPreviousDisplayOrderedElement(selectedControl);
@@ -460,12 +377,30 @@ function mdouBtn_OnClick() {
 
 	// update the movement button enabled state (since control display order changed)
 	updateCtrlDisplayOrderAdjustmentBtns();
+
+	if (!isExecutingUndoRedoStep) {
+
+		console.log("ADDING MOVE CTRL ORDER STEP");
+
+		// add step
+		addChangeCtrlDisplayOrder_URS(selCtrlID, "up");
+	}
 }
 
 // event handler that fires when the user clicks the 'move display order down' button (which moves the control 1 step down in its containing control's display order/hierarchy)
-function mdodBtn_OnClick() {
+function mdodBtn_OnClick(
+	isExecutingUndoRedoStep = false
+) {
 	// check for errors (i.e., no control selected) to avoid exceptions
 	if (!selectedControl) { return; }
+
+	// check if a 'modify control property' step needs to be added
+	if (editingProperty_IsModifyingProperty) {
+		addCtrlPropertyModifyStepToURSList();
+	}
+
+	// record the selectd control id
+	const selCtrlID = selectedControl.id;
 
 	// get the next control (to move the selected control(s) after)
 	const nextCtrl = getNextDisplayOrderedElement(selectedControl);
@@ -483,6 +418,14 @@ function mdodBtn_OnClick() {
 
 	// update the movement button enabled state (since control display order changed)
 	updateCtrlDisplayOrderAdjustmentBtns();
+
+	if (!isExecutingUndoRedoStep) {
+
+		console.log("ADDING MOVE CTRL ORDER STEP");
+		
+		// add step
+		addChangeCtrlDisplayOrder_URS(selCtrlID, "down");
+	}
 }
 
 // event handler that fires when the user clicks the 'move to next selected container' button (which moves the selected control into the next container the user clicks. If the user clicks a non-container control, the action is canceled. If the user clicks the button twice, the action will be canceled)

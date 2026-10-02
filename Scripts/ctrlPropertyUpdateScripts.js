@@ -18,7 +18,9 @@ function applyPropertyChange(
 function applyPropertyToControl(
     control,
     propertyName,
-    value
+    value,
+    isInitialCtrlSetup = false,
+    isCtrlPropertyModifyURAction = false // indicates if this function is being called to undo or redo a 'modify control property' action
 ) {
 
     if (!control) {
@@ -35,6 +37,32 @@ function applyPropertyToControl(
         "value:",
         value
     );
+
+
+    if (!isInitialCtrlSetup && !isCtrlPropertyModifyURAction) {
+
+	// check if the control type is 
+
+    	// update/manage property-editing data (for undo/redo system)
+    	if (editingProperty_PropName != "" && editingProperty_PropName != propertyName) {
+		// control property being edited has changed; add a 'change control property' step
+		addModifyCtrlProperty_URS(control.id, editingProperty_PropName, editingProperty_NewPropValue, editingProperty_OldPropValue);
+
+		// get existing property value of current control property (to use as 'old value' when the step is added)
+		editingProperty_OldPropValue = getControlPropertyValue(control, propertyName);
+
+    	} else if (editingProperty_PropName == "") {
+		// set initial edited property
+		editingProperty_OldPropValue = getControlPropertyValue(control, propertyName);
+	}
+
+    	// update the value of the edited property & name (to put into a 'edit property' undo-redo step)
+	editingProperty_PropName = propertyName;
+    	editingProperty_NewPropValue = value;
+
+	// set flag recording change
+	editingProperty_IsModifyingProperty = true;
+    }
 
     switch (propertyName) {
 
