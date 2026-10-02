@@ -86,7 +86,9 @@ function filterOptionsOnUserInput(stbBoxRef) {
     let visibleCount = 0;
 
     for (const li of listRef.children) {
+
         const matches = li.textContent
+	    .trim()
             .toLowerCase()
             .startsWith(search);
 
@@ -104,7 +106,11 @@ function filterOptionsOnUserInput(stbBoxRef) {
 //console.log("Matches:", visibleCount);
 //console.log("Dropdown:", document.getElementById(stbBoxRef.dropdownDivID))
 
+    console.log("MATCHES: " + visibleCount);
+
     if ((visibleCount > 0 || stbBoxRef.doMatchesExist == "true")) {
+
+	console.log("SHOWING RESULT");
 
 	// clear the flag to allow the dropdown's position to update
         stbBoxRef.isDropdownPositioned = "false";
@@ -164,7 +170,50 @@ function positionDropdown(dropdownDivRef, stbRef) {
 }
 
 
+
+// this function binds event handlers to a searchable dropdown textbox, referenced by the 'control' parameter
+function bindSDTBEvents(control) {
+	// error checks
+	if (control == null || control.dataset.controlType != "Searchable Dropdown List") {
+		console.log("Can't bind event handler to control; reference is null or not type 'searchable dropdown list'");
+		return;
+	}
+
+	// get control references
+	const searchableItemList = document.getElementById(control.getAttribute('backingListID'));
+	const dropdownContainerDiv = document.getElementById(control.getAttribute('dropdownDivID'));
+
+	// bind event handlers to the textbox (control)
+	control.addEventListener("input", () => { filterOptionsOnUserInput(document.getElementById(control.id)); });
+	control.addEventListener("focus", () => { filterOptionsOnUserInput(document.getElementById(control.id)); });
+
+	// closes the dropdown (should fire if the user no longer has selected the combobox
+	control.addEventListener("blur", () => { 
+		closeDropdown(document.getElementById(dropdownContainerDiv.id), document.getElementById(control.id));
+	});
+		
+	control.addEventListener("mousedown", () => { openDropdown(document.getElementById(dropdownContainerDiv.id), document.getElementById(control.id)); });
+
+	// bind event handlers to the list
+	searchableItemList.addEventListener("mousedown", event => { stb_SelectItem(document.getElementById(control.id), event.target.textContent); } );
+
+	// position dropdown
+	positionDropdown(document.getElementById(dropdownContainerDiv.id), document.getElementById(control.id));
+}
+
 // misc functions
+
+// this function exports the javascript code necessary to bind event handlers to controls that require javascript for necessary functionality. It's meant to be placed inside the 'on page load' event handler
+function exportSDTEHBindingJSCode() {
+	return `const stbElems = document.querySelectorAll(
+	'[data-control-type="Searchable Dropdown List"]'
+	);
+
+	for (let i = 0; i < stbElems.length; i++) { 
+		bindSDTBEvents(stbElems[i]);
+}
+`;
+}
 
 // This function exports the javascript code needed to provide the functionality of this control
 // *This function should be run when exporting the page code, to get the code necessary to run the page. Event handler-binding code should be included in the page's startup script
@@ -175,5 +224,8 @@ function exportSearchableTextboxJSCode() {
 	stbJSCode += stb_SelectItem.toString() + "\n";
 	stbJSCode += openDropdown.toString() + "\n";
 	stbJSCode += closeDropdown.toString() + "\n";
-	stbJSCode += positionDropdown.toString();
+	stbJSCode += positionDropdown.toString() + "\n";
+	stbJSCode += bindSDTBEvents.toString() + "\n";
+
+	return stbJSCode;
 }

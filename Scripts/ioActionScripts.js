@@ -404,7 +404,7 @@ function loadBrowserSavedData() {
 // FORMATTING FUNCTIONS
 
 
-// Returns a string array of length 2 containing the HTML and CSS code of the element and children of the element whose ID is provided as a parameter.  If the ID is blank, null will be returned. If innerHTMLOnly is set to true, only the inner HTML (excluding the HTML of the element whose elementId is provided) will be returned. If 'getTrimmedHTML' is set to true, HTML without inline styling elements will be returned. If set to false, HTML with inline styling will be returned.
+// Returns a string array of length 2 containing the HTML/Javascript and CSS code of the element and children of the element whose ID is provided as a parameter.  If the ID is blank, null will be returned. If innerHTMLOnly is set to true, only the inner HTML (excluding the HTML of the element whose elementId is provided) will be returned. If 'getTrimmedHTML' is set to true, HTML without inline styling elements will be returned. If set to false, HTML with inline styling will be returned.
 function getElementCode(elementId, innerHTMLOnly, getTrimmedHTML) {
 	const element = document.getElementById(elementId);
 
@@ -416,6 +416,46 @@ function getElementCode(elementId, innerHTMLOnly, getTrimmedHTML) {
 
 	// if this point is reached then the element exists and can be exported
 	let elementCode = [];
+
+	// add javascript necessary to make dynamic/specialized controls operable (like searchable dropdown textboxes)
+	const searchableDropdownListExists = document.querySelector(
+   		'[data-control-type="Searchable Dropdown List"]'
+	) !== null;
+
+	// check if javascript exporting is required
+	const isCustomControlJSExportRequired = searchableDropdownListExists;
+	let onPageLoadFunctionCode = "document.addEventListener('DOMContentLoaded', () => {\n";
+	let exportedJSCode = "";
+
+	//if (isCustomControlJSExportRequired) {
+	if (true) {
+
+		// add the start of the script section
+		exportedJSCode += "\n\n\n" + "<script>" + "\n";
+
+		console.log(searchableDropdownListExists + " DO CONTROLS EXIST?");
+
+		// append code
+		if (searchableDropdownListExists) {
+			// add code binding the event handlers to the 
+			onPageLoadFunctionCode += exportSDTEHBindingJSCode() + "\n";
+
+			// append the searchable dropdown list javascript code
+			exportedJSCode += exportSearchableTextboxJSCode();
+		}
+
+		// finish off the page loading function
+		onPageLoadFunctionCode += "});"
+
+		// append the onPageLoadFunctionCode to the page
+		exportedJSCode += onPageLoadFunctionCode;
+
+		// finish the script section
+		exportedJSCode += "\n" + "</script>";
+
+
+		//console.log(exportedJSCode);
+	}
 	
 	// populate element/children HTML & CSS into elementCode array
 	if (getTrimmedHTML) {
@@ -428,6 +468,10 @@ function getElementCode(elementId, innerHTMLOnly, getTrimmedHTML) {
 		}
 	}
 
+	// append the exported JS code
+	elementCode[0] += exportedJSCode;
+
+	//console.log(elementCode[0]);
 
 	// populate CSS code
 	elementCode[1] = extractCSS(document.getElementById(elementId));

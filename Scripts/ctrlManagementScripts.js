@@ -212,6 +212,10 @@ function createControl(
 		dropdownContainerDiv.appendChild(searchableItemList);
 		container.appendChild(dropdownContainerDiv);
 
+		// bind event handlers to control
+		bindSDTBEvents(control);
+
+/*
 		// bind event handlers to the textbox (control)
 		control.addEventListener("input", () => { filterOptionsOnUserInput(document.getElementById(control.id)); });
 		control.addEventListener("focus", () => { filterOptionsOnUserInput(document.getElementById(control.id)); });
@@ -229,6 +233,7 @@ function createControl(
 
 		// position dropdown
 		positionDropdown(document.getElementById(dropdownContainerDiv.id), document.getElementById(control.id));
+*/
 
 		break;
     }
