@@ -179,6 +179,9 @@ function bindSDTBEvents(control) {
 		return;
 	}
 
+	// initialize the flag to 'false' to ensure the dropdown gets positioned properly on first click
+	control.isDropdownPositioned = "false";
+
 	// get control references
 	const searchableItemList = document.getElementById(control.getAttribute('backingListID'));
 	const dropdownContainerDiv = document.getElementById(control.getAttribute('dropdownDivID'));
@@ -194,6 +197,17 @@ function bindSDTBEvents(control) {
 		
 	control.addEventListener("mousedown", () => { openDropdown(document.getElementById(dropdownContainerDiv.id), document.getElementById(control.id)); });
 
+	// close the dropdown when scrolling (to avoid visual bugs)
+	window.addEventListener("scroll", () => { 
+	closeDropdown(document.getElementById(dropdownContainerDiv.id), document.getElementById(control.id));
+});
+
+	// reposition the dropdown after scrolling (to ensure correct placement)
+	window.addEventListener("scrollend", () => {
+		control.isDropdownPositioned = "false";
+		positionDropdown(document.getElementById(dropdownContainerDiv.id), document.getElementById(control.id));
+});
+
 	// bind event handlers to the list
 	searchableItemList.addEventListener("mousedown", event => { stb_SelectItem(document.getElementById(control.id), event.target.textContent); } );
 
@@ -201,10 +215,23 @@ function bindSDTBEvents(control) {
 	positionDropdown(document.getElementById(dropdownContainerDiv.id), document.getElementById(control.id));
 }
 
+// this function binds searchable dropdown textbox event handler code (necessary for control operation) to all SDTB elements in the page
+function bindSDTBEventsToPageControl() {
+	const stbElems = document.querySelectorAll(
+	'[data-control-type="Searchable Dropdown List"]'
+	);
+
+	for (let i = 0; i < stbElems.length; i++) { 
+		bindSDTBEvents(stbElems[i]);
+	}
+}
+
 // misc functions
 
 // this function exports the javascript code necessary to bind event handlers to controls that require javascript for necessary functionality. It's meant to be placed inside the 'on page load' event handler
 function exportSDTEHBindingJSCode() {
+	return getFunctionBodyAsString(bindSDTBEventsToPageControl);
+/*
 	return `const stbElems = document.querySelectorAll(
 	'[data-control-type="Searchable Dropdown List"]'
 	);
@@ -213,6 +240,8 @@ function exportSDTEHBindingJSCode() {
 		bindSDTBEvents(stbElems[i]);
 }
 `;
+*/
+
 }
 
 // This function exports the javascript code needed to provide the functionality of this control

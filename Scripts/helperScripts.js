@@ -86,6 +86,22 @@ function getRandomColor() {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
+// this function returns a function's body as a string representation
+function getFunctionBodyAsString(functionRef) {
+	// error checks
+	if (functionRef == null) {
+		console.log("Can't get function body text; function referenced by parameter is null");
+		return "";
+	}
+
+	const source = functionRef.toString();
+
+	// return the function body code
+	return source.slice(
+    		source.indexOf('{') + 1,
+    		source.lastIndexOf('}')
+	).trim();
+}
 
 function getColorLuminance(color) {
     const temporaryElement = document.createElement("div");

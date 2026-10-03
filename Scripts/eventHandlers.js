@@ -341,6 +341,11 @@ function onPageLoaded() {
     			event.preventDefault();
 		});
 	});
+
+	// 2. Register event handlers to custom control types that need javascript functionality to support
+	
+	// register event handlers with controls that require javascript to function
+	registerJSPoweredCtrlEventHandlers();
 }
 
 

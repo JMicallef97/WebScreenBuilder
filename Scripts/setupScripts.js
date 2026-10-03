@@ -351,6 +351,12 @@ function registerKeyboardEvents() {
         true);
 }
 
+// registers event handlers for control types that require javascript to function (like searchable dropdown textboxes)
+function registerJSPoweredCtrlEventHandlers() {
+	// searchable dropdown controls
+	bindSDTBEventsToPageControl();
+}
+
 // registers events for buttons on the page
 function registerButtonEvents() {
 

@@ -10,7 +10,7 @@ function onSavePageToBrowserBtn_Click() {
     	}
 
 	// retrieve the page code (both HTML and CSS)
-	const pageCode = getElementCode("controlCanvas", false, false);
+	const pageCode = getElementCode("controlCanvas", true, false, false);
 	const pageHTMLCode = pageCode[0];
 
 	// try saving the data to local storage
@@ -35,7 +35,7 @@ function onSavePageToFileBtn_Click() {
     	}
 	
 	// retrieve the page code (both HTML and CSS)
-	const pageCode = getElementCode("controlCanvas", false, false);
+	const pageCode = getElementCode("controlCanvas", true, false);
 	//console.log(pageCode[0]);
 
 	// insert into a template
@@ -52,14 +52,26 @@ function onSavePageToFileBtn_Click() {
 
 async function onLoadPageBtn_Click() {
 	// let the user load an HTML page
-	const loadedFileContents = await pickFile([".wpe"]);
+	let loadedFileContents = await pickFile([".wpe"]);
 	
 	const htmlSectionStartIndex = loadedFileContents.indexOf(pageSaveFile_HTMLSectionStartMarker)
 		+ pageSaveFile_HTMLSectionStartMarker.length;
+
+	//const htmlSectionEndIndex = loadedFileContents.lastIndexOf(pageSaveFile_HTMLSectionEndMarker);
+
 	const htmlSectionEndIndex = loadedFileContents.lastIndexOf(pageSaveFile_HTMLSectionEndMarker);
 
+	// remove the javascript if it exists
+	if (loadedFileContents.indexOf(pageSaveFile_JSSectionStartMarker) != -1 && loadedFileContents.indexOf(pageSaveFile_JSSectionEndMarker) != -1) {
+
+		const jsSectionStartIndex = loadedFileContents.indexOf(pageSaveFile_JSSectionStartMarker);
+		const jsSectionEndIndex = loadedFileContents.indexOf(pageSaveFile_JSSectionEndMarker) + pageSaveFile_JSSectionEndMarker.length;
+
+		loadedFileContents = loadedFileContents.slice(0, jsSectionStartIndex) + loadedFileContents.slice(jsSectionEndIndex);
+	}
+
 	// extract the HTML (substring between the values of pageSaveFile_HTMLSectionStartMarker and pageSaveFile_HTMLSectionEndMarker
-	const loadedHTML = loadedFileContents.slice(htmlSectionStartIndex, htmlSectionEndIndex);
+	const loadedHTML = loadedFileContents.slice(htmlSectionStartIndex, htmlSectionEndIndex).slice(0, -(pageSaveFile_HTMLSectionEndMarker.length));
 
 	// reset the control canvas to prepare it for loading the file HTML in
 	resetControlCanvas();
@@ -88,7 +100,7 @@ function onExportPageBtn_Click() {
     	}
 	
 	// retrieve the page code (both HTML and CSS)
-	const pageCode = getElementCode("controlCanvas", false, true); // last parameter 'true'
+	const pageCode = getElementCode("controlCanvas", true, true); // last parameter 'true'
 	let pageHTML = pageCode[0];
 	let pageCSS = pageCode[1];
 
@@ -379,12 +391,17 @@ function loadBrowserSavedData() {
 
 	//console.log(loadedHTML);
 
+
 	if (loadedHTML.length > 0) {
+
 		// reset the control canvas to prepare it for loading the file HTML in
 		resetControlCanvas();
 
 		// load the loaded HTML into the control canvas div
 		document.getElementById("controlCanvas").innerHTML = loadedHTML;
+
+		// load the loaded HTML into the page (removing the control canvas, since it exists in the saved page)
+		
 
 		// update the createdControlCount and autoAssignIDCounter values based on the loaded control count
 		createdControlCount = document.getElementById("controlCanvas").querySelectorAll('*').length;
@@ -396,7 +413,7 @@ function loadBrowserSavedData() {
     		onControlCountChanged();
 
 		// run the 'onPageLoaded' event to take care of final details/settings before showing to the user
-		onPageLoaded()
+		onPageLoaded();
 	}
 }
 
@@ -405,7 +422,7 @@ function loadBrowserSavedData() {
 
 
 // Returns a string array of length 2 containing the HTML/Javascript and CSS code of the element and children of the element whose ID is provided as a parameter.  If the ID is blank, null will be returned. If innerHTMLOnly is set to true, only the inner HTML (excluding the HTML of the element whose elementId is provided) will be returned. If 'getTrimmedHTML' is set to true, HTML without inline styling elements will be returned. If set to false, HTML with inline styling will be returned.
-function getElementCode(elementId, innerHTMLOnly, getTrimmedHTML) {
+function getElementCode(elementId, innerHTMLOnly, getTrimmedHTML, getJavascript = true) {
 	const element = document.getElementById(elementId);
 
 	// check if the provided element doesn't exist
@@ -417,44 +434,55 @@ function getElementCode(elementId, innerHTMLOnly, getTrimmedHTML) {
 	// if this point is reached then the element exists and can be exported
 	let elementCode = [];
 
-	// add javascript necessary to make dynamic/specialized controls operable (like searchable dropdown textboxes)
-	const searchableDropdownListExists = document.querySelector(
-   		'[data-control-type="Searchable Dropdown List"]'
-	) !== null;
-
-	// check if javascript exporting is required
-	const isCustomControlJSExportRequired = searchableDropdownListExists;
-	let onPageLoadFunctionCode = "document.addEventListener('DOMContentLoaded', () => {\n";
+	// stores any exported javascript code
 	let exportedJSCode = "";
 
-	//if (isCustomControlJSExportRequired) {
-	if (true) {
+	if (getJavascript) {
 
-		// add the start of the script section
-		exportedJSCode += "\n\n\n" + "<script>" + "\n";
+		//alert("GETTING JAVASCRIPT");
 
-		console.log(searchableDropdownListExists + " DO CONTROLS EXIST?");
+		// add javascript necessary to make dynamic/specialized controls operable (like searchable dropdown textboxes)
+		const searchableDropdownListExists = document.querySelector(
+   			'[data-control-type="Searchable Dropdown List"]'
+		) !== null;
 
-		// append code
-		if (searchableDropdownListExists) {
-			// add code binding the event handlers to the 
-			onPageLoadFunctionCode += exportSDTEHBindingJSCode() + "\n";
+		// check if javascript exporting is required
+		const isCustomControlJSExportRequired = searchableDropdownListExists;
+		let onPageLoadFunctionCode = "document.addEventListener('DOMContentLoaded', () => {\n";
 
-			// append the searchable dropdown list javascript code
-			exportedJSCode += exportSearchableTextboxJSCode();
+		if (isCustomControlJSExportRequired) {
+
+			// add the start of the script section
+			exportedJSCode += "\n\n\n" + 
+			pageSaveFile_JSSectionStartMarker +
+			"\n" + "<script>" + "\n";
+
+			//console.log(searchableDropdownListExists + " DO CONTROLS EXIST?");
+
+			// append code
+			if (searchableDropdownListExists) {
+				// add code binding the event handlers to the 
+				onPageLoadFunctionCode += exportSDTEHBindingJSCode() + "\n";
+
+				// append the searchable dropdown list javascript code
+				exportedJSCode += exportSearchableTextboxJSCode();
+			}
+
+			// finish off the page loading function
+			onPageLoadFunctionCode += "});"
+
+			// append the onPageLoadFunctionCode to the page
+			exportedJSCode += onPageLoadFunctionCode;
+
+			// finish the script section
+			exportedJSCode += "\n" + "</script>" + "\n";
+	
+			// add a comment to mark the end
+			exportedJSCode += pageSaveFile_JSSectionEndMarker;
+
+
+			//console.log(exportedJSCode);
 		}
-
-		// finish off the page loading function
-		onPageLoadFunctionCode += "});"
-
-		// append the onPageLoadFunctionCode to the page
-		exportedJSCode += onPageLoadFunctionCode;
-
-		// finish the script section
-		exportedJSCode += "\n" + "</script>";
-
-
-		//console.log(exportedJSCode);
 	}
 	
 	// populate element/children HTML & CSS into elementCode array
@@ -468,8 +496,10 @@ function getElementCode(elementId, innerHTMLOnly, getTrimmedHTML) {
 		}
 	}
 
-	// append the exported JS code
-	elementCode[0] += exportedJSCode;
+	if (exportedJSCode.length > 0) {
+		// append the exported JS code
+		elementCode[0] += exportedJSCode;
+	}
 
 	//console.log(elementCode[0]);
 

@@ -36,6 +36,9 @@ const pageSaveFile_HTMLSectionEndMarker = "<!--<@!HTML SECTION END!@>-->";
 const pageSaveFile_CSSSectionStartMarker = "<!--<@!CSS SECTION START!@>-->";
 const pageSaveFile_CSSSectionEndMarker = "<!--<@!CSS SECTION END!@>-->";
 
+const pageSaveFile_JSSectionStartMarker = "<!--<!CUSTOM CONTROL JAVASCRIPT START!@>-->";
+const pageSaveFile_JSSectionEndMarker = "<!--<!CUSTOM CONTROL JAVASCRIPT END!@>-->";
+
 // CSS code used to override browser default stylesheet values (to ensure exported pages show up the same as they do in the editor)
 const envStylesheetDefaultResetCSS = `/* Global baseline */
 *,
